@@ -6,8 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "Database.h"
-#import <MKNetworkKit/MKNetworkEngine.h>
+#import "objc_couchdb.h"
 
 @implementation Database
 
@@ -38,6 +37,33 @@
     }
     
     return operation;
+}
+
+#pragma mark - convenience functions
+-(ChangesListener*)changesListenerWithFilter:(Filter*)filter {
+    return [[ChangesListener alloc] initWithDatabase:self filter:filter];
+}
+-(ChangesListener*)changesListener {
+    return [self changesListenerWithFilter:nil];
+}
+
+-(void)loadDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DocumentDownloadFinishedBlock)finishedBlock errorBlock:(DocumentDownloadErrorBlock)errorBlock {
+    MKNetworkOperation* operation = [self operationWithPath:identifier params:nil httpMethod:@"GET"];
+    
+    [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {        
+        NSDictionary* properties = completedOperation.responseJSON;
+        Document* document = [[Document alloc] initWithDatabase:self properties:properties];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            finishedBlock(document);
+        });
+    } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            errorBlock(error);
+        });
+    }];
+    
+    
+    [self.engine enqueueOperation:operation];
 }
 
 @end

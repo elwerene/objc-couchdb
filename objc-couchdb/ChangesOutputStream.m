@@ -6,8 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "ChangesOutputStream.h"
-#import "ChangesListener.h"
+#import "objc_couchdb.h"
 
 @interface ChangesOutputStream()
 @property (nonatomic) NSMutableData* buffer;

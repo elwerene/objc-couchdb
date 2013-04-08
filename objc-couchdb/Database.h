@@ -6,9 +6,12 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "objc_couchdb.h"
 
-@class CouchDB, MKNetworkEngine, MKNetworkOperation;
+@class CouchDB, MKNetworkEngine, MKNetworkOperation, ChangesListener, Filter;
+
+typedef void (^DocumentDownloadFinishedBlock)(Document* document);
+typedef void (^DocumentDownloadErrorBlock)(NSError* error);
 
 @interface Database : NSObject {
     @private
@@ -30,7 +33,19 @@
 @property (nonatomic, readonly) MKNetworkEngine* engine;
 
 -(id)initWithHostName:(NSString*)hostName port:(NSNumber*)port useSSL:(BOOL)useSSL username:(NSString*)username password:(NSString*)password name:(NSString*)name;
+-(MKNetworkOperation*)operationWithPath:(NSString*) path params:(NSDictionary*) body httpMethod:(NSString*)method;
 
--(MKNetworkOperation*) operationWithPath:(NSString*) path params:(NSDictionary*) body httpMethod:(NSString*)method;
+-(ChangesListener*)changesListenerWithFilter:(Filter*)filter;
+-(ChangesListener*)changesListener;
+
+-(void)loadDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DocumentDownloadFinishedBlock)finishedBlock errorBlock:(DocumentDownloadErrorBlock)errorBlock;
+
+/* TODO:
+ * 
+ * newDoc (uuid)
+ * getDoc
+ * getDocs
+ * getDesignDoc
+ */
 
 @end

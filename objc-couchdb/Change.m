@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "Change.h"
+#import "objc_couchdb.h"
 
 @implementation Change
 

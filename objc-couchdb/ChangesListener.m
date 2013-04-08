@@ -6,17 +6,13 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "ChangesListener.h"
-#import "Database.h"
-#import "Change.h"
-#import "Filter.h"
-#import "Design.h"
-#import <MKNetworkKit/MKNetworkEngine.h>
+#import "objc_couchdb.h"
 
 @interface ChangesListener ()
 @property (nonatomic) NSMutableSet* delegates;
 @property (nonatomic) ChangesOutputStream* stream;
 @property (nonatomic) MKNetworkOperation* operation;
+@property (nonatomic) NSNumber* seq;
 @end
 
 @implementation ChangesListener
@@ -28,6 +24,7 @@
         _filter = filter;
         _delegates = [NSMutableSet set];
         _stream = [[ChangesOutputStream alloc] initWithDelegate:self];
+        _seq = @0;
     }
     return self;
 }
@@ -56,23 +53,7 @@
     MKNetworkOperation* getSeq = [self.database operationWithPath:@"" params:nil httpMethod:@"GET"];
     [getSeq addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         NSDictionary* response = [completedOperation responseJSON];
-        NSNumber* updateSeq = [response objectForKey:@"update_seq"];
-        
-        NSMutableDictionary* params = [@{@"feed":@"continuous",@"heartbeat":@10000,@"since":updateSeq} mutableCopy];
-        if (self.filter != nil) {
-            [params setObject:[NSString stringWithFormat:@"%@/%@",self.filter.design.identifier,self.filter.name] forKey:@"filter"];
-        }
-        
-        self.operation = [self.database operationWithPath:@"_changes" params:params httpMethod:@"GET"];
-        [self.operation addHeaders:@{@"Accept":@"application/json"}]; //Fixes NSUrlConnection bug as couchdb returns with mimetype application/json
-        [self.operation addDownloadStream:self.stream];
-        [self.operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
-            //TODO
-            NSLog(@"Completion");
-        } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-            //TODO
-            NSLog(@"Error: %@", error);
-        }];
+        self.seq = [response objectForKey:@"update_seq"];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self start];
@@ -86,6 +67,32 @@
 }
 
 -(void)start {
+    if (self.delegates.count == 0) return;
+    
+    NSMutableDictionary* params = [@{@"feed":@"continuous",@"heartbeat":@10000,@"since":self.seq} mutableCopy];
+    if (self.filter != nil) {
+        [params setObject:[NSString stringWithFormat:@"%@/%@",self.filter.design.identifier,self.filter.name] forKey:@"filter"];
+    }
+    
+    self.operation = [self.database operationWithPath:@"_changes" params:params httpMethod:@"GET"];
+    [self.operation addHeaders:@{@"Accept":@"application/json"}]; //Fixes NSUrlConnection bug as couchdb returns with mimetype application/json
+    [self.operation addDownloadStream:self.stream];
+    
+    ChangesListener* weakSelf = self;
+    [self.operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
+        NSLog(@"Completed");
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf start];
+        });
+    } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
+        NSLog(@"Error: %@", error);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf start];
+        });
+    }];
+    
     [self.operation start];
 }
 
@@ -94,6 +101,7 @@
 }
 
 -(void)newChange:(NSDictionary*)changeDict {
+    self.seq = [changeDict objectForKey:@"seq"];
     Change* change = [[Change alloc] initWithData:changeDict];
     
     for (NSObject<ChangesDelegate>* delegate in self.delegates) {

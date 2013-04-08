@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "objc_couchdb.h"
 
 @interface Change : NSObject {
 @private

@@ -6,6 +6,20 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "Database.h"
-#import "ChangesListener.h"
+#ifndef OBJC_COUCHDB
+
+#import <Foundation/Foundation.h>
+#import <MKNetworkKit/MKNetworkKit.h>
+
+#import "Attachment.h"
 #import "Change.h"
+#import "ChangesListener.h"
+#import "ChangesOutputStream.h"
+#import "Database.h"
+#import "Design.h"
+#import "Document.h"
+#import "Filter.h"
+
+#define OBJC_COUCHDB
+
+#endif

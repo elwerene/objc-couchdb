@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "ChangesOutputStream.h"
 
 @class Database, Filter, Change, MKNetworkOperation;
@@ -23,6 +22,7 @@
     NSMutableSet* _delegates;
     ChangesOutputStream* _stream;
     MKNetworkOperation* _operation;
+    NSNumber* _seq;
 }
 
 @property (nonatomic, readonly) Database* database;
