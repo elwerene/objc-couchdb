@@ -101,11 +101,13 @@
     [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         if (finishedBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSString* revision = [completedOperation.responseJSON objectForKey:@"rev"];
-                NSMutableDictionary* newProperties = [self.properties mutableCopy];
-                [newProperties setObject:revision forKey:@"_rev"];
-                Document* document = [[Document alloc] initWithDatabase:self.database properties:newProperties];
-                finishedBlock(document);
+                [self.database loadDocumentWithIdentifier:self.identifier finishedBlock:^(Document* document) {
+                    finishedBlock(document);
+                } errorBlock:^(NSError* error) {
+                    if (errorBlock) {
+                        errorBlock(error);
+                    }
+                }];
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {

@@ -63,7 +63,25 @@
 }
 
 -(void)deleteWithFinishedBlock:(DeleteAttachmentFinishedBlock)finishedBlock errorBlock:(DeleteAttachmentErrorBlock)errorBlock {
-    //TODO
+    [self.document.database
+     deletePath:[NSString stringWithFormat:@"%@/%@",self.document.identifier,self.name]
+     params:@{@"rev":self.document.revision}
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         if (finishedBlock) {
+             [self.document.database loadDocumentWithIdentifier:self.document.identifier finishedBlock:^(Document* document) {
+                 finishedBlock(document);
+             } errorBlock:^(NSError* error) {
+                 if (errorBlock) {
+                     errorBlock(error);
+                 }
+             }];
+         }
+     }
+     errorBlock:^(NSError* error) {
+         if (errorBlock) {
+             errorBlock(error);
+         }
+     }];
 }
 
 @end
