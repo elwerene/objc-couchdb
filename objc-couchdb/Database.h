@@ -23,6 +23,8 @@ typedef void (^DesignDownloadErrorBlock)(NSError* error);
 typedef void (^CreateDocumentFinishedBlock)(Document* document);
 typedef void (^CreateDocumentErrorBlock)(NSError* error);
 
+typedef void (^DatabaseErrorBlock)(NSError* error);
+
 @interface Database : NSObject {
     @private
     NSString* _hostName;
@@ -32,6 +34,7 @@ typedef void (^CreateDocumentErrorBlock)(NSError* error);
     NSString* _password;
     NSString* _name;
     MKNetworkEngine* _engine;
+    DatabaseErrorBlock _globalErrorBlock;
 }
 
 @property (nonatomic, readonly) NSString* hostName;
@@ -41,10 +44,10 @@ typedef void (^CreateDocumentErrorBlock)(NSError* error);
 @property (nonatomic, readonly) NSString* password;
 @property (nonatomic, readonly) NSString* name;
 @property (nonatomic, readonly) MKNetworkEngine* engine;
+@property (nonatomic, readonly) DatabaseErrorBlock globalErrorBlock;
 
 -(id)initWithHostName:(NSString*)hostName port:(NSNumber*)port useSSL:(BOOL)useSSL username:(NSString*)username password:(NSString*)password name:(NSString*)name;
-//TODO
-//-(void)setGlobalErrorBlock
+-(void)setGlobalErrorBlock:(DatabaseErrorBlock)globalErrorBlock;
 
 -(ChangesListener*)changesListenerWithFilter:(Filter*)filter;
 -(ChangesListener*)changesListener;
@@ -58,10 +61,5 @@ typedef void (^CreateDocumentErrorBlock)(NSError* error);
 -(void)loadDesignDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DesignDownloadFinishedBlock)finishedBlock errorBlock:(DesignDownloadErrorBlock)errorBlock;
 -(void)newDocumentWithIdentifier:(NSString*)identifier finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock;
 -(void)newDocumentWithFinishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock;
-
-/* TODO:
- * 
- * getDocs
- */
 
 @end

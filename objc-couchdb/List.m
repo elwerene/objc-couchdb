@@ -26,14 +26,20 @@
 
 -(void)queryWithFinishedBlock:(ListQueryFinishedBlock)finishedBlock errorBlock:(ListQueryErrorBlock)errorBlock {
     if (self.view == nil) {
+        NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list without view."}];
         if (errorBlock) {
-            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list without view."}]);
+            errorBlock(error);
+        } else if (self.design.database.globalErrorBlock) {
+            self.design.database.globalErrorBlock(error);
         }
         return;
     }
     if (self.view.design != self.design) {
+        NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list with view of another design document."}];
         if (errorBlock) {
-            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list with view of another design document."}]);
+            errorBlock(error);
+        } else if (self.design.database.globalErrorBlock) {
+            self.design.database.globalErrorBlock(error);
         }
         return;
     }
@@ -49,6 +55,8 @@
                        errorBlock:^(NSError* error) {
                            if (errorBlock) {
                                errorBlock(error);
+                           } else if (self.design.database.globalErrorBlock) {
+                               self.design.database.globalErrorBlock(error);
                            }
                        }
      ];

@@ -8,7 +8,7 @@
 
 #import "objc_couchdb.h"
 
-typedef void (^UpdateDocumentFinishedBlock)(Document* document);
+typedef void (^UpdateDocumentFinishedBlock)(MKNetworkOperation* completedOperation);
 typedef void (^UpdateDocumentErrorBlock)(NSError* error);
 
 @interface Update : NSObject {
@@ -21,6 +21,6 @@ typedef void (^UpdateDocumentErrorBlock)(NSError* error);
 @property (nonatomic, readonly) NSString* name;
 
 -(id)initWithDesign:(Design*)design name:(NSString*)name;
--(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock;
+-(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock;
 
 @end

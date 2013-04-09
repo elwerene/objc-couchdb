@@ -25,8 +25,23 @@
 
 #pragma mark - operations
 
--(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock {
-    //TODO
+-(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock {
+    
+    [self.design.database
+     putPath:[NSString stringWithFormat:@"%@/_update/%@",self.design.identifier,self.name]
+     params:properties
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         if (finishedBlock) {
+             finishedBlock(completedOperation);
+         }
+     }
+     errorBlock:^(NSError* error) {
+         if (errorBlock) {
+             errorBlock(error);
+         } else if (self.design.database.globalErrorBlock) {
+             self.design.database.globalErrorBlock(error);
+         }
+     }];
 }
 
 @end

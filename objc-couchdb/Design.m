@@ -65,7 +65,7 @@
 }
 
 -(NSString*)description {
-    return [NSString stringWithFormat:@"<Design: database=%@ identifier=%@ revision=%@ views:%i filters:%i lists:%i>",self.database,self.identifier,self.revision,self.views.count,self.filters.count,self.lists.count];
+    return [NSString stringWithFormat:@"<Design: database=%@ identifier=%@ revision=%@ views:%i filters:%i lists:%i updates:%i>",self.database,self.identifier,self.revision,self.views.count,self.filters.count,self.lists.count,self.updates.count];
 }
 
 @end

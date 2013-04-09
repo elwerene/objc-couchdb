@@ -53,20 +53,28 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
+         } else if (self.database.globalErrorBlock) {
+             self.database.globalErrorBlock(error);
          }
      }];
 }
 
 -(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock {
     if (![[properties objectForKey:@"_id"] isEqualToString:self.identifier]) {
+        NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document identifier is not allowed."}];
         if (errorBlock) {
-            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document identifier is not allowed."}]);
+            errorBlock(error);
+        } else if (self.database.globalErrorBlock) {
+            self.database.globalErrorBlock(error);
         }
         return;
     }
     if (![[properties objectForKey:@"_rev"] isEqualToString:self.revision]) {
+        NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document revision is not allowed."}];
         if (errorBlock) {
-            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document revision is not allowed."}]);
+            errorBlock(error);
+        } else if (self.database.globalErrorBlock) {
+            self.database.globalErrorBlock(error);
         }
         return;
     }
@@ -86,6 +94,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
+         } else if (self.database.globalErrorBlock) {
+             self.database.globalErrorBlock(error);
          }
      }];
 }
@@ -106,16 +116,20 @@
                 } errorBlock:^(NSError* error) {
                     if (errorBlock) {
                         errorBlock(error);
+                    } else if (self.database.globalErrorBlock) {
+                        self.database.globalErrorBlock(error);
                     }
                 }];
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        if (errorBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (errorBlock) {
                 errorBlock(error);
-            });
-        }
+            } else if (self.database.globalErrorBlock) {
+                self.database.globalErrorBlock(error);
+            }
+        });
     }];
     
     if (progressBlock) {

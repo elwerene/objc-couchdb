@@ -20,12 +20,18 @@
         _password = password;
         _name = name;
         
+        _globalErrorBlock = nil;
         _engine = [[MKNetworkEngine alloc] initWithHostName:hostName];
         _engine.portNumber = (port != nil)?[port intValue]:0;
         _engine.apiPath = name;
     }
     return self;
 }
+
+-(void)setGlobalErrorBlock:(DatabaseErrorBlock)globalErrorBlock {
+    _globalErrorBlock = globalErrorBlock;
+}
+
 
 -(NSString*)description {
     return [NSString stringWithFormat:@"<Database: hostName=%@ name=%@>",self.hostName,self.name];
@@ -67,7 +73,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } //TODO: main error block
+        } else if (self.globalErrorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.globalErrorBlock(error);
+            });
+        }
     }];
     if (progressBlock != nil) {
         [operation onDownloadProgressChanged:^(double progress) {
@@ -95,7 +105,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } //TODO: main error block
+        } else if (self.globalErrorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.globalErrorBlock(error);
+            });
+        }
     }];
     
     [self.engine enqueueOperation:operation];
@@ -115,7 +129,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } //TODO: main error block
+        } else if (self.globalErrorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.globalErrorBlock(error);
+            });
+        }
     }];
     
     [self.engine enqueueOperation:operation];
@@ -138,6 +156,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
+         } else if (self.globalErrorBlock) {
+             self.globalErrorBlock(error);
          }
      }];
 }
@@ -157,6 +177,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
+         } else if (self.globalErrorBlock) {
+             self.globalErrorBlock(error);
          }
      }];
 }
@@ -175,6 +197,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
+         } else if (self.globalErrorBlock) {
+             self.globalErrorBlock(error);
          }
      }];
 }
