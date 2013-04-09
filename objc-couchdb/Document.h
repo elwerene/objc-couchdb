@@ -10,6 +10,15 @@
 
 @class Database;
 
+typedef void (^DeleteDocumentFinishedBlock)();
+typedef void (^DeleteDocumentErrorBlock)(NSError* error);
+
+typedef void (^PutPropertiesFinishedBlock)(Document* document);
+typedef void (^PutPropertiesErrorBlock)(NSError* error);
+
+typedef void (^PutAttachmentFinishedBlock)(Document* document);
+typedef void (^PutAttachmentErrorBlock)(NSError* error);
+
 @interface Document : NSObject {
     @private
     Database* _database;
@@ -29,12 +38,8 @@
 @property (nonatomic, readonly) NSDictionary* attachments;
 
 -(id)initWithDatabase:(Database*)database properties:(NSDictionary*)properties;
-
-/* TODO:
- * 
- * PutProperties
- * Delete
- * PutAttachment
- */
+-(void)deleteWithFinishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock;
+-(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock;
+-(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock;
 
 @end

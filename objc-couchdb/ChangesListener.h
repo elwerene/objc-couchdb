@@ -8,7 +8,7 @@
 
 #import "ChangesOutputStream.h"
 
-@class Database, Filter, Change, MKNetworkOperation;
+@class Database, Filter, MKNetworkOperation;
 
 @protocol ChangesDelegate <NSObject>
 -(void)newChange:(Change*)change;

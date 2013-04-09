@@ -14,6 +14,9 @@ typedef void (^AttachmentDownloadProgressBlock)(double progress);
 typedef void (^AttachmentDownloadFinishedBlock)(Attachment* attachment);
 typedef void (^AttachmentDownloadErrorBlock)(NSError* error);
 
+typedef void (^DeleteAttachmentFinishedBlock)();
+typedef void (^DeleteAttachmentErrorBlock)(NSError* error);
+
 @interface Attachment : NSObject {
 @private
     Document* _document;
@@ -38,10 +41,6 @@ typedef void (^AttachmentDownloadErrorBlock)(NSError* error);
 -(id)initWithDocument:(Document*)document name:(NSString*)name properties:(NSDictionary*)properties;
 -(void)loadWithProgressBlock:(AttachmentDownloadProgressBlock)progressBlock finishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock;
 -(void)loadWithFinishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock;
-
-/* TODO:
- *
- * DELETE
- */
+-(void)deleteWithFinishedBlock:(DeleteAttachmentFinishedBlock)finishedBlock errorBlock:(DeleteAttachmentErrorBlock)errorBlock;
 
 @end

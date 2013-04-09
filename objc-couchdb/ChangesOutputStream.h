@@ -8,8 +8,6 @@
 
 #import "objc_couchdb.h"
 
-@class ChangesListener;
-
 @protocol InternalChangeDelegate<NSObject>
 -(void)newChange:(NSDictionary*)changeDict;
 @end

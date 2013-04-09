@@ -19,4 +19,8 @@
     return self;
 }
 
+-(NSString*)description {
+    return [NSString stringWithFormat:@"<Filter: design=%@ name=%@>",self.design,self.name];
+}
+
 @end

@@ -30,35 +30,39 @@
     return self;
 }
 
-#pragma mark - load operation
+#pragma mark - operations
 
 -(void)loadWithProgressBlock:(AttachmentDownloadProgressBlock)progressBlock finishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock {
-    MKNetworkOperation* operation = [self.document.database operationWithPath:[NSString stringWithFormat:@"%@/%@",self.document.identifier,self.name] params:nil httpMethod:@"GET"];
-        
-    [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
-        _data = completedOperation.responseData;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            finishedBlock(self);
-        });
-    } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            errorBlock(error);
-        });
-        
-    }];
-    [operation onDownloadProgressChanged:^(double progress) {
-        if (progressBlock != nil) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                progressBlock(progress);
-            });
-        }
-    }];
+    OperationProgressBlock myProgressBlock = nil;
     
-    [self.document.database.engine enqueueOperation:operation];
+    if (progressBlock) {
+        myProgressBlock = ^(double progress){
+            progressBlock(progress);
+        };
+    }
+    
+    [self.document.database
+     getPath:[NSString stringWithFormat:@"%@/%@",self.document.identifier,self.name]
+     params:nil progressBlock:myProgressBlock
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         _data = completedOperation.responseData;
+         if (finishedBlock) {
+             finishedBlock(self);
+         }
+     }
+     errorBlock:^(NSError* error) {
+         if (errorBlock) {
+             errorBlock(error);
+         }
+     }];
 }
 
 -(void)loadWithFinishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock {
     [self loadWithProgressBlock:nil finishedBlock:finishedBlock errorBlock:errorBlock];
+}
+
+-(void)deleteWithFinishedBlock:(DeleteAttachmentFinishedBlock)finishedBlock errorBlock:(DeleteAttachmentErrorBlock)errorBlock {
+    //TODO
 }
 
 @end

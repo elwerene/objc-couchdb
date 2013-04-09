@@ -50,20 +50,18 @@
 }
 
 -(void)getSeqAndStart {
-    MKNetworkOperation* getSeq = [self.database operationWithPath:@"" params:nil httpMethod:@"GET"];
-    [getSeq addCompletionHandler:^(MKNetworkOperation* completedOperation) {
-        NSDictionary* response = [completedOperation responseJSON];
-        self.seq = [response objectForKey:@"update_seq"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self start];
-        });
-    } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        //TODO
-        NSLog(@"Error: %@", error);
-    }];
-    
-    [self.database.engine enqueueOperation:getSeq];
+    [self.database
+     getPath:@""
+     params:nil
+     progressBlock:nil
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         NSDictionary* response = [completedOperation responseJSON];
+         self.seq = [response objectForKey:@"update_seq"];
+         [self start];
+     }
+     errorBlock:^(NSError* error) {
+         NSLog(@"Error: %@", error);
+     }];
 }
 
 -(void)start {
@@ -80,13 +78,12 @@
     
     ChangesListener* weakSelf = self;
     [self.operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
-        NSLog(@"Completed");
-        
+        NSLog(@"Changes stream completed");
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf start];
         });
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        NSLog(@"Error: %@", error);
+        NSLog(@"Changes stream error: %@", error);
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf start];

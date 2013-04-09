@@ -35,4 +35,22 @@
     return self;
 }
 
+-(NSString*)description {
+    return [NSString stringWithFormat:@"<Document: database=%@ identifier=%@ revision=%@>",self.database,self.identifier,self.revision];
+}
+
+#pragma mark - operations
+
+-(void)deleteWithFinishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock {
+    //TODO
+}
+
+-(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock {
+    //TODO
+}
+
+-(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {
+    //TODO
+}
+
 @end

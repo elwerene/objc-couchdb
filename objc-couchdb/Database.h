@@ -8,10 +8,20 @@
 
 #import "objc_couchdb.h"
 
-@class CouchDB, MKNetworkEngine, MKNetworkOperation, ChangesListener, Filter;
+@class CouchDB, Design, MKNetworkEngine, MKNetworkOperation, ChangesListener, Filter;
+
+typedef void (^OperationProgressBlock)(double progress);
+typedef void (^OperationFinishedBlock)(MKNetworkOperation* completedOperation);
+typedef void (^OperationErrorBlock)(NSError* error);
 
 typedef void (^DocumentDownloadFinishedBlock)(Document* document);
 typedef void (^DocumentDownloadErrorBlock)(NSError* error);
+
+typedef void (^DesignDownloadFinishedBlock)(Design* design);
+typedef void (^DesignDownloadErrorBlock)(NSError* error);
+
+typedef void (^CreateDocumentFinishedBlock)(Document* document);
+typedef void (^CreateDocumentErrorBlock)(NSError* error);
 
 @interface Database : NSObject {
     @private
@@ -33,19 +43,25 @@ typedef void (^DocumentDownloadErrorBlock)(NSError* error);
 @property (nonatomic, readonly) MKNetworkEngine* engine;
 
 -(id)initWithHostName:(NSString*)hostName port:(NSNumber*)port useSSL:(BOOL)useSSL username:(NSString*)username password:(NSString*)password name:(NSString*)name;
--(MKNetworkOperation*)operationWithPath:(NSString*) path params:(NSDictionary*) body httpMethod:(NSString*)method;
+//TODO
+//-(void)setGlobalErrorBlock
 
 -(ChangesListener*)changesListenerWithFilter:(Filter*)filter;
 -(ChangesListener*)changesListener;
 
+-(MKNetworkOperation*)operationWithPath:(NSString*) path params:(NSDictionary*) body httpMethod:(NSString*)method;
+-(void)getPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock;
+-(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock;
+-(void)deletePath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock;
+
 -(void)loadDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DocumentDownloadFinishedBlock)finishedBlock errorBlock:(DocumentDownloadErrorBlock)errorBlock;
+-(void)loadDesignDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DesignDownloadFinishedBlock)finishedBlock errorBlock:(DesignDownloadErrorBlock)errorBlock;
+-(void)newDocumentWithIdentifier:(NSString*)identifier finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock;
+-(void)newDocumentWithFinishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock;
 
 /* TODO:
  * 
- * newDoc (uuid)
- * getDoc
  * getDocs
- * getDesignDoc
  */
 
 @end

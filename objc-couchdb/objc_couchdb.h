@@ -19,6 +19,11 @@
 #import "Design.h"
 #import "Document.h"
 #import "Filter.h"
+#import "List.h"
+#import "Update.h"
+#import "View.h"
+#import "ViewResult.h"
+#import "ViewResultRow.h"
 
 #define OBJC_COUCHDB
 
