@@ -60,7 +60,11 @@
          [self start];
      }
      errorBlock:^(NSError* error) {
-         NSLog(@"Error: %@", error);
+         if (self.database.globalErrorBlock) {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 self.database.globalErrorBlock(error);
+             });
+         }
      }];
 }
 
@@ -69,6 +73,7 @@
     
     NSMutableDictionary* params = [@{@"feed":@"continuous",@"heartbeat":@10000,@"since":self.seq} mutableCopy];
     if (self.filter != nil) {
+        [params addEntriesFromDictionary:self.filter.options];
         [params setObject:[NSString stringWithFormat:@"%@/%@",self.filter.design.identifier,self.filter.name] forKey:@"filter"];
     }
     
@@ -78,16 +83,17 @@
     
     ChangesListener* weakSelf = self;
     [self.operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
-        NSLog(@"Changes stream completed");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf start];
-        });
+        if (weakSelf.database.globalErrorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                weakSelf.database.globalErrorBlock([NSError errorWithDomain:@"ChangesStreamError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changes stream completed."}]);
+            });
+        }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        NSLog(@"Changes stream error: %@", error);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf start];
-        });
+        if (weakSelf.database.globalErrorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                weakSelf.database.globalErrorBlock(error);
+            });
+        }
     }];
     
     [self.operation start];

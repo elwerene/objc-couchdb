@@ -10,7 +10,7 @@
 
 @class View;
 
-typedef void (^ListQueryFinishedBlock)(id result);
+typedef void (^ListQueryFinishedBlock)(MKNetworkOperation* completedOperation);
 typedef void (^ListQueryErrorBlock)(NSError* error);
 
 @interface List : NSObject {

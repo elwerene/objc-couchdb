@@ -54,7 +54,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.document.database.globalErrorBlock) {
+         }
+         if (self.document.database.globalErrorBlock) {
              self.document.database.globalErrorBlock(error);
          }
      }];
@@ -75,7 +76,8 @@
              } errorBlock:^(NSError* error) {
                  if (errorBlock) {
                      errorBlock(error);
-                 } else if (self.document.database.globalErrorBlock) {
+                 }
+                 if (self.document.database.globalErrorBlock) {
                      self.document.database.globalErrorBlock(error);
                  }
              }];
@@ -84,7 +86,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.document.database.globalErrorBlock) {
+         }
+         if (self.document.database.globalErrorBlock) {
              self.document.database.globalErrorBlock(error);
          }
      }];

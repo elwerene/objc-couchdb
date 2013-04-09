@@ -61,7 +61,7 @@
                 NSDictionary* change = [NSJSONSerialization JSONObjectWithData:line options:0 error:&error];
                 
                 if(error) {
-                    NSLog(@"JSON Parsing Error: %@", error);
+                    //NSLog(@"JSON Parsing Error: %@", error);
                 } else if (change) {
                     [self.delegate newChange:change];
                 }

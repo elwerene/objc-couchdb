@@ -38,7 +38,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.design.database.globalErrorBlock) {
+         }
+         if (self.design.database.globalErrorBlock) {
              self.design.database.globalErrorBlock(error);
          }
      }];

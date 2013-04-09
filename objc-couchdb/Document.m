@@ -53,7 +53,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.database.globalErrorBlock) {
+         }
+         if (self.database.globalErrorBlock) {
              self.database.globalErrorBlock(error);
          }
      }];
@@ -64,7 +65,8 @@
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document identifier is not allowed."}];
         if (errorBlock) {
             errorBlock(error);
-        } else if (self.database.globalErrorBlock) {
+        }
+        if (self.database.globalErrorBlock) {
             self.database.globalErrorBlock(error);
         }
         return;
@@ -73,7 +75,8 @@
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document revision is not allowed."}];
         if (errorBlock) {
             errorBlock(error);
-        } else if (self.database.globalErrorBlock) {
+        }
+        if (self.database.globalErrorBlock) {
             self.database.globalErrorBlock(error);
         }
         return;
@@ -94,7 +97,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.database.globalErrorBlock) {
+         }
+         if (self.database.globalErrorBlock) {
              self.database.globalErrorBlock(error);
          }
      }];
@@ -116,7 +120,8 @@
                 } errorBlock:^(NSError* error) {
                     if (errorBlock) {
                         errorBlock(error);
-                    } else if (self.database.globalErrorBlock) {
+                    }
+                    if (self.database.globalErrorBlock) {
                         self.database.globalErrorBlock(error);
                     }
                 }];
@@ -126,7 +131,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             if (errorBlock) {
                 errorBlock(error);
-            } else if (self.database.globalErrorBlock) {
+            }
+            if (self.database.globalErrorBlock) {
                 self.database.globalErrorBlock(error);
             }
         });

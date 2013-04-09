@@ -29,7 +29,8 @@
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list without view."}];
         if (errorBlock) {
             errorBlock(error);
-        } else if (self.design.database.globalErrorBlock) {
+        }
+        if (self.design.database.globalErrorBlock) {
             self.design.database.globalErrorBlock(error);
         }
         return;
@@ -38,24 +39,26 @@
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list with view of another design document."}];
         if (errorBlock) {
             errorBlock(error);
-        } else if (self.design.database.globalErrorBlock) {
+        }
+        if (self.design.database.globalErrorBlock) {
             self.design.database.globalErrorBlock(error);
         }
         return;
     }
-    
+        
     [self.design.database getPath:[NSString stringWithFormat:@"%@/_list/%@/%@",self.design.identifier,self.name,self.view.name]
                            params:self.view.options
                     progressBlock:nil
                     finishedBlock:^(MKNetworkOperation* completedOperation) {
                         if (finishedBlock) {
-                            finishedBlock([completedOperation responseJSON]);
+                            finishedBlock(completedOperation);
                         }
                     }
                        errorBlock:^(NSError* error) {
                            if (errorBlock) {
                                errorBlock(error);
-                           } else if (self.design.database.globalErrorBlock) {
+                           }
+                           if (self.design.database.globalErrorBlock) {
                                self.design.database.globalErrorBlock(error);
                            }
                        }

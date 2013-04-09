@@ -73,7 +73,8 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } else if (self.globalErrorBlock) {
+        }
+        if (self.globalErrorBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.globalErrorBlock(error);
             });
@@ -105,7 +106,8 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } else if (self.globalErrorBlock) {
+        }
+        if (self.globalErrorBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.globalErrorBlock(error);
             });
@@ -129,7 +131,8 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(error);
             });
-        } else if (self.globalErrorBlock) {
+        }
+        if (self.globalErrorBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.globalErrorBlock(error);
             });
@@ -156,7 +159,8 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.globalErrorBlock) {
+         }
+         if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
      }];
@@ -177,38 +181,42 @@
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.globalErrorBlock) {
+         }
+         if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
      }];
 }
 
--(void)newDocumentWithIdentifier:(NSString*)identifier finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
+-(void)newDocumentWithIdentifier:(NSString*)identifier properties:(NSDictionary*)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
     [self
      putPath:identifier
-     params:nil
+     params:properties
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
-             NSDictionary* properties = completedOperation.responseJSON;
-             Document* document = [[Document alloc] initWithDatabase:self properties:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
+             NSMutableDictionary* properties = [completedOperation.responseJSON mutableCopy];
+             [properties addEntriesFromDictionary:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
+             
+             Document* document = [[Document alloc] initWithDatabase:self properties:properties];
              finishedBlock(document);
          }
      }
      errorBlock:^(NSError* error) {
          if (errorBlock) {
              errorBlock(error);
-         } else if (self.globalErrorBlock) {
+         }
+         if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
      }];
 }
 
--(void)newDocumentWithFinishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
+-(void)newDocumentWithProperties:(NSDictionary *)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
     CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
     NSString* identifier = (__bridge_transfer NSString *)CFUUIDCreateString(kCFAllocatorDefault, uuid);
     CFRelease(uuid);
     
-    [self newDocumentWithIdentifier:identifier finishedBlock:finishedBlock errorBlock:errorBlock];
+    [self newDocumentWithIdentifier:identifier properties:properties finishedBlock:finishedBlock errorBlock:errorBlock];
 }
 
 @end

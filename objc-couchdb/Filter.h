@@ -16,6 +16,7 @@
 
 @property (nonatomic, readonly) Design* design;
 @property (nonatomic, readonly) NSString* name;
+@property (nonatomic, retain) NSDictionary* options;
 
 -(id)initWithDesign:(Design*)design name:(NSString*)name;
 
