@@ -168,13 +168,8 @@
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
              NSDictionary* properties = completedOperation.responseJSON;
-             if ([[properties objectForKey:@"ok"] isEqualToNumber:@YES]) {
-                 Document* document = [[Document alloc] initWithDatabase:self properties:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
-                 finishedBlock(document);
-             } else {
-                 errorBlock([NSError errorWithDomain:@"ServerError" code:0 userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Can't create new document \"%@\"",identifier]}]);
-
-             }
+             Document* document = [[Document alloc] initWithDatabase:self properties:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
+             finishedBlock(document);
          }
      }
      errorBlock:^(NSError* error) {

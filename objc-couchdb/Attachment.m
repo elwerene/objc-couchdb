@@ -43,7 +43,8 @@
     
     [self.document.database
      getPath:[NSString stringWithFormat:@"%@/%@",self.document.identifier,self.name]
-     params:nil progressBlock:myProgressBlock
+     params:nil
+     progressBlock:myProgressBlock
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          _data = completedOperation.responseData;
          if (finishedBlock) {

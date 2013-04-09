@@ -42,15 +42,89 @@
 #pragma mark - operations
 
 -(void)deleteWithFinishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock {
-    //TODO
+    [self.database
+     deletePath:self.identifier
+     params:@{@"rev":self.revision}
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         if (finishedBlock) {
+             finishedBlock();
+         }
+     }
+     errorBlock:^(NSError* error) {
+         if (errorBlock) {
+             errorBlock(error);
+         }
+     }];
 }
 
 -(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock {
-    //TODO
+    if (![[properties objectForKey:@"_id"] isEqualToString:self.identifier]) {
+        if (errorBlock) {
+            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document identifier is not allowed."}]);
+        }
+        return;
+    }
+    if (![[properties objectForKey:@"_rev"] isEqualToString:self.revision]) {
+        if (errorBlock) {
+            errorBlock([NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document revision is not allowed."}]);
+        }
+        return;
+    }
+    
+    [self.database
+     putPath:self.identifier
+     params:properties
+     finishedBlock:^(MKNetworkOperation* completedOperation) {
+         if (finishedBlock) {
+             NSString* revision = [completedOperation.responseJSON objectForKey:@"rev"];
+             NSMutableDictionary* newProperties = [properties mutableCopy];
+             [newProperties setObject:revision forKey:@"_rev"];
+             Document* document = [[Document alloc] initWithDatabase:self.database properties:newProperties];
+             finishedBlock(document);
+         }
+     }
+     errorBlock:^(NSError* error) {
+         if (errorBlock) {
+             errorBlock(error);
+         }
+     }];
 }
 
--(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {
-    //TODO
+-(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data progressBlock:(PutAttachmentProgressBlock)progressBlock finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {
+    MKNetworkOperation* operation = [self.database operationWithPath:[NSString stringWithFormat:@"%@/%@?rev=%@",self.identifier,name,self.revision] params:nil httpMethod:@"PUT"];
+    
+    NSInputStream* input = [[NSInputStream alloc] initWithData:data];
+    [operation setUploadStream:input];
+    
+    [operation addHeaders:@{@"Content-Type":mimetype,@"Content-Length":[NSString stringWithFormat:@"%i",data.length]}];
+    
+    [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
+        if (finishedBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSString* revision = [completedOperation.responseJSON objectForKey:@"rev"];
+                NSMutableDictionary* newProperties = [self.properties mutableCopy];
+                [newProperties setObject:revision forKey:@"_rev"];
+                Document* document = [[Document alloc] initWithDatabase:self.database properties:newProperties];
+                finishedBlock(document);
+            });
+        }
+    } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
+        if (errorBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                errorBlock(error);
+            });
+        }
+    }];
+    
+    if (progressBlock) {
+        [operation onUploadProgressChanged:^(double progress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                progressBlock(progress);
+            });
+        }];
+    }
+    
+    [self.database.engine enqueueOperation:operation];
 }
 
 @end

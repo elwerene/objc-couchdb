@@ -16,6 +16,7 @@ typedef void (^DeleteDocumentErrorBlock)(NSError* error);
 typedef void (^PutPropertiesFinishedBlock)(Document* document);
 typedef void (^PutPropertiesErrorBlock)(NSError* error);
 
+typedef void (^PutAttachmentProgressBlock)(double progress);
 typedef void (^PutAttachmentFinishedBlock)(Document* document);
 typedef void (^PutAttachmentErrorBlock)(NSError* error);
 
@@ -40,6 +41,6 @@ typedef void (^PutAttachmentErrorBlock)(NSError* error);
 -(id)initWithDatabase:(Database*)database properties:(NSDictionary*)properties;
 -(void)deleteWithFinishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock;
 -(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock;
--(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock;
+-(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data progressBlock:(PutAttachmentProgressBlock)progressBlock finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock;
 
 @end
