@@ -47,13 +47,31 @@
 
 #pragma mark - general operations
 
--(MKNetworkOperation*) operationWithPath:(NSString*) path
-                                  params:(NSDictionary*) body
+-(MKNetworkOperation*) operationWithPath:(NSString*)path
+                                  params:(NSDictionary*)_params
                               httpMethod:(NSString*)method {
-    MKNetworkOperation* operation = [self.engine operationWithPath:path params:body httpMethod:method ssl:self.useSSL];
+    
+    NSDictionary* params = _params;
+    if ([method isEqualToString:@"GET"]) {
+        NSMutableDictionary* fixedParams = [NSMutableDictionary dictionaryWithCapacity:params.count];
+        for (id key in params.allKeys) {
+            id obj = [params objectForKey:key];
+            if ([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[NSNumber class]]) {
+                [fixedParams setObject:obj forKey:key];
+            } else {
+                NSString* jsonObj = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:obj options:0 error:nil] encoding:NSUTF8StringEncoding];
+                if (jsonObj) {
+                    [fixedParams setObject:jsonObj forKey:key];
+                }
+            }
+        }
+        params = fixedParams;
+    }
+    
+    MKNetworkOperation* operation = [self.engine operationWithPath:path params:params httpMethod:method ssl:self.useSSL];
     
     if (self.username != nil && self.password != nil) {
-        [operation setUsername:self.username password:self.password];
+        [operation setUsername:self.username password:self.password basicAuth:YES];
     }
     
     return operation;
@@ -88,7 +106,7 @@
         }];
     }
     
-    [self.engine enqueueOperation:operation];
+    [self.engine enqueueOperation:operation forceReload:YES];
 }
 
 -(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock {
@@ -114,7 +132,7 @@
         }
     }];
     
-    [self.engine enqueueOperation:operation];
+    [self.engine enqueueOperation:operation forceReload:YES];
 }
 
 -(void)deletePath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock {
@@ -139,7 +157,7 @@
         }
     }];
     
-    [self.engine enqueueOperation:operation];
+    [self.engine enqueueOperation:operation forceReload:YES];
 }
 
 #pragma mark - operations

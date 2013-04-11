@@ -74,7 +74,7 @@
     NSMutableDictionary* params = [@{@"feed":@"continuous",@"heartbeat":@10000,@"since":self.seq} mutableCopy];
     if (self.filter != nil) {
         [params addEntriesFromDictionary:self.filter.options];
-        [params setObject:[NSString stringWithFormat:@"%@/%@",self.filter.design.identifier,self.filter.name] forKey:@"filter"];
+        [params setObject:[NSString stringWithFormat:@"%@/%@",[self.filter.design.identifier substringFromIndex:8],self.filter.name] forKey:@"filter"];
     }
     
     self.operation = [self.database operationWithPath:@"_changes" params:params httpMethod:@"GET"];
