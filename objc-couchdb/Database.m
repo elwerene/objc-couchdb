@@ -49,10 +49,11 @@
 
 -(MKNetworkOperation*) operationWithPath:(NSString*)path
                                   params:(NSDictionary*)_params
-                              httpMethod:(NSString*)method {
+                              httpMethod:(NSString*)method
+                              jsonParams:(BOOL)jsonParams {
     
     NSDictionary* params = _params;
-    if ([method isEqualToString:@"GET"]) {
+    if (jsonParams) {
         NSMutableDictionary* fixedParams = [NSMutableDictionary dictionaryWithCapacity:params.count];
         for (id key in params.allKeys) {
             id obj = [params objectForKey:key];
@@ -77,8 +78,8 @@
     return operation;
 }
 
--(void)getPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock {
-    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"GET"];
+-(void)getPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams {
+    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"GET" jsonParams:jsonParams];
     
     [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         if (finishedBlock) {
@@ -109,9 +110,11 @@
     [self.engine enqueueOperation:operation forceReload:YES];
 }
 
--(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock {
-    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"PUT"];
-    operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+-(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams {
+    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"PUT" jsonParams:jsonParams];
+    if (jsonParams) {
+        operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
+    }
     
     [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         if (finishedBlock) {
@@ -135,8 +138,8 @@
     [self.engine enqueueOperation:operation forceReload:YES];
 }
 
--(void)deletePath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock {
-    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"DELETE"];
+-(void)deletePath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams {
+    MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"DELETE" jsonParams:jsonParams];
     
     [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         if (finishedBlock) {
@@ -181,7 +184,8 @@
          if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)loadDesignDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DesignDownloadFinishedBlock)finishedBlock errorBlock:(DesignDownloadErrorBlock)errorBlock {
@@ -203,7 +207,8 @@
          if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)newDocumentWithIdentifier:(NSString*)identifier properties:(NSDictionary*)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
@@ -226,7 +231,8 @@
          if (self.globalErrorBlock) {
              self.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)newDocumentWithProperties:(NSDictionary *)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {

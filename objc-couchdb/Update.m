@@ -28,7 +28,7 @@
 -(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock {
     
     [self.design.database
-     putPath:[NSString stringWithFormat:@"%@/_update/%@",self.design.identifier,self.name]
+     putPath:[NSString stringWithFormat:@"%@/_update/%@/%@",self.design.identifier,self.name,document.identifier]
      params:properties
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
@@ -42,7 +42,8 @@
          if (self.design.database.globalErrorBlock) {
              self.design.database.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 @end

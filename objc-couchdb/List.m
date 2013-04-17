@@ -45,7 +45,7 @@
         }
         return;
     }
-        
+    
     [self.design.database getPath:[NSString stringWithFormat:@"%@/_list/%@/%@",self.design.identifier,self.name,self.view.name]
                            params:self.view.options
                     progressBlock:nil
@@ -62,6 +62,7 @@
                                self.design.database.globalErrorBlock(error);
                            }
                        }
+                       jsonParams:YES
      ];
 }
 

@@ -58,7 +58,8 @@
          if (self.document.database.globalErrorBlock) {
              self.document.database.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)loadWithFinishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock {
@@ -90,7 +91,8 @@
          if (self.document.database.globalErrorBlock) {
              self.document.database.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 @end

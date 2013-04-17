@@ -57,7 +57,8 @@
          if (self.database.globalErrorBlock) {
              self.database.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock {
@@ -101,11 +102,12 @@
          if (self.database.globalErrorBlock) {
              self.database.globalErrorBlock(error);
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data progressBlock:(PutAttachmentProgressBlock)progressBlock finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {
-    MKNetworkOperation* operation = [self.database operationWithPath:[NSString stringWithFormat:@"%@/%@?rev=%@",self.identifier,name,self.revision] params:nil httpMethod:@"PUT"];
+    MKNetworkOperation* operation = [self.database operationWithPath:[NSString stringWithFormat:@"%@/%@?rev=%@",self.identifier,name,self.revision] params:nil httpMethod:@"PUT" jsonParams:NO];
     
     NSInputStream* input = [[NSInputStream alloc] initWithData:data];
     [operation setUploadStream:input];

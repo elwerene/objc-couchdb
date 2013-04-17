@@ -65,7 +65,8 @@
                  self.database.globalErrorBlock(error);
              });
          }
-     }];
+     }
+     jsonParams:NO];
 }
 
 -(void)start {
@@ -77,7 +78,7 @@
         [params setObject:[NSString stringWithFormat:@"%@/%@",[self.filter.design.identifier substringFromIndex:8],self.filter.name] forKey:@"filter"];
     }
     
-    self.operation = [self.database operationWithPath:@"_changes" params:params httpMethod:@"GET"];
+    self.operation = [self.database operationWithPath:@"_changes" params:params httpMethod:@"GET" jsonParams:YES];
     [self.operation addHeaders:@{@"Accept":@"application/json"}]; //Fixes NSUrlConnection bug as couchdb returns with mimetype application/json
     [self.operation addDownloadStream:self.stream];
     
@@ -89,11 +90,12 @@
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
-        if (weakSelf.database.globalErrorBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf performSelector:@selector(start) withObject:nil afterDelay:0.1];
+            if (weakSelf.database.globalErrorBlock) {
                 weakSelf.database.globalErrorBlock(error);
-            });
-        }
+            }
+        });
     }];
     
     [self.operation start];
