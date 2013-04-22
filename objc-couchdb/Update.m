@@ -25,11 +25,21 @@
 
 #pragma mark - operations
 
--(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock {
+-(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock progressBlock:(UpdateDocumentProgressBlock)progressBlock {
+    
+    [self updateDocumentWithIdentifier:document.identifier withProperties:properties finishedBlock:finishedBlock errorBlock:errorBlock progressBlock:progressBlock];
+}
+
+-(void)updateDocumentWithIdentifier:(NSString*)identifier withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock progressBlock:(UpdateDocumentProgressBlock)progressBlock {
     
     [self.design.database
-     putPath:[NSString stringWithFormat:@"%@/_update/%@/%@",self.design.identifier,self.name,document.identifier]
+     putPath:[NSString stringWithFormat:@"%@/_update/%@/%@",self.design.identifier,self.name,identifier]
      params:properties
+     progressBlock:^(double progress) {
+         if (progressBlock) {
+             progressBlock(progress);
+         }
+     }
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
              finishedBlock(completedOperation);

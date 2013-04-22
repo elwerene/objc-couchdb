@@ -10,6 +10,7 @@
 
 typedef void (^UpdateDocumentFinishedBlock)(MKNetworkOperation* completedOperation);
 typedef void (^UpdateDocumentErrorBlock)(NSError* error);
+typedef void (^UpdateDocumentProgressBlock)(double progress);
 
 @interface Update : NSObject {
 @private
@@ -21,6 +22,7 @@ typedef void (^UpdateDocumentErrorBlock)(NSError* error);
 @property (nonatomic, readonly) NSString* name;
 
 -(id)initWithDesign:(Design*)design name:(NSString*)name;
--(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock;
+-(void)updateDocument:(Document*)document withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock progressBlock:(UpdateDocumentProgressBlock)progressBlock;
+-(void)updateDocumentWithIdentifier:(NSString*)identifier withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock progressBlock:(UpdateDocumentProgressBlock)progressBlock;
 
 @end

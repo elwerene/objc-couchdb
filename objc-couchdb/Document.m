@@ -86,6 +86,7 @@
     [self.database
      putPath:self.identifier
      params:properties
+     progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
              NSString* revision = [completedOperation.responseJSON objectForKey:@"rev"];
@@ -103,7 +104,7 @@
              self.database.globalErrorBlock(error);
          }
      }
-     jsonParams:NO];
+     jsonParams:YES];
 }
 
 -(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data progressBlock:(PutAttachmentProgressBlock)progressBlock finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {

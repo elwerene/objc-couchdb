@@ -54,7 +54,7 @@ typedef void (^DatabaseErrorBlock)(NSError* error);
 
 -(MKNetworkOperation*)operationWithPath:(NSString*) path params:(NSDictionary*) body httpMethod:(NSString*)method jsonParams:(BOOL)jsonParams;
 -(void)getPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams;
--(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams;
+-(void)putPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams;
 -(void)deletePath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams;
 
 -(void)loadDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DocumentDownloadFinishedBlock)finishedBlock errorBlock:(DocumentDownloadErrorBlock)errorBlock;

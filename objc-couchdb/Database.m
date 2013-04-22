@@ -53,7 +53,7 @@
                               jsonParams:(BOOL)jsonParams {
     
     NSDictionary* params = _params;
-    if (jsonParams) {
+    if (jsonParams && ([method isEqualToString:@"GET"] || [method isEqualToString:@"DELETE"])) {
         NSMutableDictionary* fixedParams = [NSMutableDictionary dictionaryWithCapacity:params.count];
         for (id key in params.allKeys) {
             id obj = [params objectForKey:key];
@@ -110,7 +110,7 @@
     [self.engine enqueueOperation:operation forceReload:YES];
 }
 
--(void)putPath:(NSString*)path params:(NSDictionary*)params finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams {
+-(void)putPath:(NSString*)path params:(NSDictionary*)params progressBlock:(OperationProgressBlock)progressBlock finishedBlock:(OperationFinishedBlock)finishedBlock errorBlock:(OperationErrorBlock)errorBlock jsonParams:(BOOL)jsonParams {
     MKNetworkOperation* operation = [self operationWithPath:path params:params httpMethod:@"PUT" jsonParams:jsonParams];
     if (jsonParams) {
         operation.postDataEncoding = MKNKPostDataEncodingTypeJSON;
@@ -134,6 +134,13 @@
             });
         }
     }];
+    if (progressBlock != nil) {
+        [operation onUploadProgressChanged:^(double progress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                progressBlock(progress);
+            });
+        }];
+    }
     
     [self.engine enqueueOperation:operation forceReload:YES];
 }
@@ -215,6 +222,7 @@
     [self
      putPath:identifier
      params:properties
+     progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
              NSMutableDictionary* properties = [completedOperation.responseJSON mutableCopy];
@@ -232,7 +240,7 @@
              self.globalErrorBlock(error);
          }
      }
-     jsonParams:NO];
+     jsonParams:YES];
 }
 
 -(void)newDocumentWithProperties:(NSDictionary *)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
