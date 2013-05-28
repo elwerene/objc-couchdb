@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation View
 
@@ -27,16 +29,22 @@
 #pragma mark - operations
 
 -(void)queryWithFinishedBlock:(ViewQueryFinishedBlock)finishedBlock errorBlock:(ViewQueryErrorBlock)errorBlock {
+    DDLogVerbose(@"[List] Querying view:%@", self.name);
+    
     [self.design.database getPath:[NSString stringWithFormat:@"%@/_view/%@",self.design.identifier,self.name]
                            params:self.options
                     progressBlock:nil
                     finishedBlock:^(MKNetworkOperation* completedOperation) {
+                        DDLogVerbose(@"[List] Done querying view:%@", self.name);
+                        
                         if (finishedBlock) {
                             ViewResult* result = [[ViewResult alloc] initWithView:self properties:completedOperation.responseJSON];
                             finishedBlock(result);
                         }
                     }
                        errorBlock:^(NSError* error) {
+                           DDLogError(@"[List] Error:%@ querying view:%@", error.localizedDescription, self.name);
+                           
                            if (errorBlock) {
                                errorBlock(error);
                            }

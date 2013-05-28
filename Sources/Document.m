@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation Document
 
@@ -42,15 +44,19 @@
 #pragma mark - operations
 
 -(void)deleteWithFinishedBlock:(DeleteDocumentFinishedBlock)finishedBlock errorBlock:(DeleteDocumentErrorBlock)errorBlock {
+    DDLogVerbose(@"[Document] Deleting document with identifier:%@", self.identifier);
     [self.database
      deletePath:self.identifier
      params:@{@"rev":self.revision}
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Document] Done deleting document with identifier:%@", self.identifier);
          if (finishedBlock) {
              finishedBlock();
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogVerbose(@"[Document] Error:%@ deleting document with identifier:%@", error.localizedDescription, self.identifier);
+         
          if (errorBlock) {
              errorBlock(error);
          }
@@ -62,8 +68,10 @@
 }
 
 -(void)putProperties:(NSDictionary*)properties finishedBlock:(PutPropertiesFinishedBlock)finishedBlock errorBlock:(PutPropertiesErrorBlock)errorBlock {
+            DDLogVerbose(@"[Document] Putting new properties:%@ for Document with identifier:%@", properties, self.identifier);
     if (![[properties objectForKey:@"_id"] isEqualToString:self.identifier]) {
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document identifier is not allowed."}];
+                DDLogError(@"[Document] Error:%@ putting new properties:%@ for Document with identifier:%@", error.localizedDescription, properties, self.identifier);
         if (errorBlock) {
             errorBlock(error);
         }
@@ -74,6 +82,7 @@
     }
     if (![[properties objectForKey:@"_rev"] isEqualToString:self.revision]) {
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Changing document revision is not allowed."}];
+        DDLogError(@"[Document] Error:%@ putting new properties:%@ for Document with identifier:%@", error.localizedDescription, properties, self.identifier);
         if (errorBlock) {
             errorBlock(error);
         }
@@ -82,12 +91,15 @@
         }
         return;
     }
+        DDLogVerbose(@"[Document] Deleting document with identifier:%@", self.identifier);
     
     [self.database
      putPath:self.identifier
      params:properties
      progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Document] Done putting new properties:%@ for Document with identifier:%@", properties, self.identifier);
+
          if (finishedBlock) {
              NSString* revision = [completedOperation.responseJSON objectForKey:@"rev"];
              NSMutableDictionary* newProperties = [properties mutableCopy];
@@ -97,6 +109,7 @@
          }
      }
      errorBlock:^(NSError* error) {
+                 DDLogError(@"[Document] Error:%@ putting new properties:%@ for Document with identifier:%@", error.localizedDescription, properties, self.identifier);
          if (errorBlock) {
              errorBlock(error);
          }
@@ -108,6 +121,8 @@
 }
 
 -(void)putAttachmentNamed:(NSString*)name mimetype:(NSString*)mimetype data:(NSData*)data progressBlock:(PutAttachmentProgressBlock)progressBlock finishedBlock:(PutAttachmentFinishedBlock)finishedBlock errorBlock:(PutAttachmentErrorBlock)errorBlock {
+    DDLogVerbose(@"[Document] Putting attachment named:%@ for Document with identifier:%@", name, self.identifier);
+
     MKNetworkOperation* operation = [self.database operationWithPath:[NSString stringWithFormat:@"%@/%@?rev=%@",self.identifier,name,self.revision] params:nil httpMethod:@"PUT" jsonParams:NO];
     
     NSInputStream* input = [[NSInputStream alloc] initWithData:data];
@@ -118,9 +133,15 @@
     [operation addCompletionHandler:^(MKNetworkOperation* completedOperation) {
         if (finishedBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                DDLogVerbose(@"[Document] Done putting attachment named:%@ for Document with identifier:%@ - reloading document", name, self.identifier);
+                
                 [self.database loadDocumentWithIdentifier:self.identifier finishedBlock:^(Document* document) {
+                    DDLogVerbose(@"[Document] Done reloading document after putting attachment named:%@ for Document with identifier:%@", name, self.identifier);
+
                     finishedBlock(document);
                 } errorBlock:^(NSError* error) {
+                    DDLogError(@"[Document] Error:%@ reloading document after putting attachment named:%@ for Document with identifier:%@", error.localizedDescription, name, self.identifier);
+                    
                     if (errorBlock) {
                         errorBlock(error);
                     }
@@ -132,6 +153,8 @@
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            DDLogError(@"[Document] Error:%@ putting attachment named:%@ for Document with identifier:%@", error.localizedDescription, name, self.identifier);
+
             if (errorBlock) {
                 errorBlock(error);
             }
@@ -144,6 +167,8 @@
     if (progressBlock) {
         [operation onUploadProgressChanged:^(double progress) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                DDLogVerbose(@"[Document] New progress:%f in putting attachment named:%@ for Document with identifier:%@", progress, name, self.identifier);
+                
                 progressBlock(progress);
             });
         }];

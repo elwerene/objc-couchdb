@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation Update
 
@@ -31,6 +33,7 @@
 }
 
 -(void)updateDocumentWithIdentifier:(NSString*)identifier withProperties:(NSDictionary*)properties finishedBlock:(UpdateDocumentFinishedBlock)finishedBlock errorBlock:(UpdateDocumentErrorBlock)errorBlock progressBlock:(UpdateDocumentProgressBlock)progressBlock {
+    DDLogVerbose(@"[Update] Updating document with identifier:%@ with update methode:%@ in design:%@", identifier, self.name, self.design);
     
     [self.design.database
      putPath:[NSString stringWithFormat:@"%@/_update/%@/%@",self.design.identifier,self.name,identifier]
@@ -41,11 +44,14 @@
          }
      }
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Update] Done updating document with identifier:%@ with update methode:%@ in design:%@", identifier, self.name, self.design);
          if (finishedBlock) {
              finishedBlock(completedOperation);
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Update] Error:%@ updating document with identifier:%@ with update methode:%@ in design:%@", error.localizedDescription, identifier, self.name, self.design);
+         
          if (errorBlock) {
              errorBlock(error);
          }

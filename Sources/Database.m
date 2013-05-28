@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation Database
 
@@ -173,11 +175,14 @@
 #pragma mark - operations
 
 -(void)loadDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DocumentDownloadFinishedBlock)finishedBlock errorBlock:(DocumentDownloadErrorBlock)errorBlock {
+    DDLogVerbose(@"[Database] Loading document with identifier:%@", identifier);
+    
     [self
      getPath:identifier
      params:nil
      progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+             DDLogVerbose(@"[Database] Done loading document with identifier:%@", identifier);
          if (finishedBlock) {
              NSDictionary* properties = completedOperation.responseJSON;
              Document* document = [[Document alloc] initWithDatabase:self properties:properties];
@@ -185,6 +190,8 @@
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Database] Error:%@ loading document with identifier:%@", error.localizedDescription, identifier);
+
          if (errorBlock) {
              errorBlock(error);
          }
@@ -196,11 +203,15 @@
 }
 
 -(void)loadDesignDocumentWithIdentifier:(NSString*)identifier finishedBlock:(DesignDownloadFinishedBlock)finishedBlock errorBlock:(DesignDownloadErrorBlock)errorBlock {
+    DDLogVerbose(@"[Database] Loading design document with identifier:%@", identifier);
+    
     [self
      getPath:[NSString stringWithFormat:@"_design/%@",identifier]
      params:nil
      progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Database] Done loading design document with identifier:%@", identifier);
+
          if (finishedBlock) {
              NSDictionary* properties = completedOperation.responseJSON;
              Design* design = [[Design alloc] initWithDatabase:self properties:properties];
@@ -208,6 +219,8 @@
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Database] Error:%@ loading document with identifier:%@", error.localizedDescription, identifier);
+
          if (errorBlock) {
              errorBlock(error);
          }
@@ -219,11 +232,15 @@
 }
 
 -(void)newDocumentWithIdentifier:(NSString*)identifier properties:(NSDictionary*)properties finishedBlock:(CreateDocumentFinishedBlock)finishedBlock errorBlock:(CreateDocumentErrorBlock)errorBlock {
+    DDLogVerbose(@"[Database] Creating new document with identifier:%@, properties:%@", identifier, properties);
+    
     [self
      putPath:identifier
      params:properties
      progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Database] Done creating new document with identifier:%@, properties:%@", identifier, properties);
+         
          if (finishedBlock) {
              NSMutableDictionary* properties = [completedOperation.responseJSON mutableCopy];
              [properties addEntriesFromDictionary:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
@@ -233,6 +250,8 @@
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Database] Error:%@ creating new document with identifier:%@, properties:%@", error.localizedDescription, identifier, properties);
+         
          if (errorBlock) {
              errorBlock(error);
          }
@@ -248,6 +267,7 @@
     NSString* identifier = (__bridge_transfer NSString *)CFUUIDCreateString(kCFAllocatorDefault, uuid);
     CFRelease(uuid);
     
+    DDLogVerbose(@"[Database] Creating new document with uuid identifier:%@ properties:%@", identifier, properties);
     [self newDocumentWithIdentifier:identifier properties:properties finishedBlock:finishedBlock errorBlock:errorBlock];
 }
 

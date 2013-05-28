@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation List
 
@@ -25,8 +27,11 @@
 }
 
 -(void)queryWithFinishedBlock:(ListQueryFinishedBlock)finishedBlock errorBlock:(ListQueryErrorBlock)errorBlock {
+    DDLogVerbose(@"[List] Querying list:%@ with view:%@", self.name, self.view);
+    
     if (self.view == nil) {
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list without view."}];
+        DDLogError(@"[List] Error:%@ querying list:%@ with view:%@", error.localizedDescription, self.name, self.view);
         if (errorBlock) {
             errorBlock(error);
         }
@@ -37,6 +42,7 @@
     }
     if (self.view.design != self.design) {
         NSError* error = [NSError errorWithDomain:@"UsageError" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Can't query list with view of another design document."}];
+        DDLogError(@"[List] Error:%@ querying list:%@ with view:%@", error.localizedDescription, self.name, self.view);
         if (errorBlock) {
             errorBlock(error);
         }
@@ -50,11 +56,14 @@
                            params:self.view.options
                     progressBlock:nil
                     finishedBlock:^(MKNetworkOperation* completedOperation) {
+                        DDLogVerbose(@"[List] Done querying list:%@ with view:%@", self.name, self.view);
+                        
                         if (finishedBlock) {
                             finishedBlock(completedOperation);
                         }
                     }
                        errorBlock:^(NSError* error) {
+                           DDLogError(@"[List] Error:%@ querying list:%@ with view:%@", error.localizedDescription, self.name, self.view);
                            if (errorBlock) {
                                errorBlock(error);
                            }

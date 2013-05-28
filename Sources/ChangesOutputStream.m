@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @interface ChangesOutputStream()
 @property (nonatomic) NSMutableData* buffer;
@@ -61,7 +63,7 @@
                 NSDictionary* change = [NSJSONSerialization JSONObjectWithData:line options:0 error:&error];
                 
                 if(error) {
-                    //NSLog(@"JSON Parsing Error: %@", error);
+                    DDLogError(@"[ChangesOutputStream] JSON Parsing Error: %@", error);
                 } else if (change) {
                     [self.delegate newChange:change];
                 }

@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
 
 typedef void (^UpdateDocumentFinishedBlock)(MKNetworkOperation* completedOperation);
 typedef void (^UpdateDocumentErrorBlock)(NSError* error);

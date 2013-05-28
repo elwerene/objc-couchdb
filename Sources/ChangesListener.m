@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @interface ChangesListener ()
 @property (nonatomic) NSMutableSet* delegates;
@@ -50,6 +52,7 @@
 }
 
 -(void)getSeqAndStart {
+    DDLogVerbose(@"[ChangesListener] Loading current update_seq and start listening for changes. Filter:%@", self.filter);
     [self.database
      getPath:@""
      params:nil
@@ -57,9 +60,11 @@
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          NSDictionary* response = [completedOperation responseJSON];
          self.seq = [response objectForKey:@"update_seq"];
+         DDLogVerbose(@"[ChangesListener] Done loading current update_seq:%@. Starting listening for changes. Filter:%@", self.seq, self.filter);
          [self start];
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[ChangesListener] Error:%@ loading current update_seq and start listening for changes. Filter:%@", error.localizedDescription, self.filter);
          if (self.database.globalErrorBlock) {
              dispatch_async(dispatch_get_main_queue(), ^{
                  self.database.globalErrorBlock(error);
@@ -71,6 +76,7 @@
 
 -(void)start {
     if (self.delegates.count == 0) return;
+    DDLogVerbose(@"[ChangesListener] Start listening for changes. Filter:%@", self.filter);
     
     NSMutableDictionary* params = [@{@"feed":@"continuous",@"heartbeat":@10000,@"since":self.seq} mutableCopy];
     if (self.filter != nil) {
@@ -102,12 +108,16 @@
 }
 
 -(void)stop {
+    DDLogVerbose(@"[ChangesListener] Stop listening for changes. Filter:%@", self.filter);
+
     [self.operation cancel];
 }
 
 -(void)newChange:(NSDictionary*)changeDict {
     self.seq = [changeDict objectForKey:@"seq"];
     Change* change = [[Change alloc] initWithData:changeDict];
+    
+    DDLogVerbose(@"[ChangesListener] New change:%@. Filter:%@", change, self.filter);
     
     for (NSObject<ChangesDelegate>* delegate in self.delegates) {
         [delegate newChange:change];

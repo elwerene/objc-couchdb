@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "objc_couchdb.h"
+#import "ObjC_CouchDB.h"
+#import <CocoaLumberjack/DDLog.h>
+extern int ddLogLevel;
 
 @implementation Attachment
 
@@ -33,10 +35,12 @@
 #pragma mark - operations
 
 -(void)loadWithProgressBlock:(AttachmentDownloadProgressBlock)progressBlock finishedBlock:(AttachmentDownloadFinishedBlock)finishedBlock errorBlock:(AttachmentDownloadErrorBlock)errorBlock {
+    DDLogVerbose(@"[Attachment] Loading attachment:%@ of document:%@", self.name, self.document.identifier);
     OperationProgressBlock myProgressBlock = nil;
     
     if (progressBlock) {
         myProgressBlock = ^(double progress){
+            DDLogVerbose(@"[Attachment] New progress:%f in loading attachment:%@ of document:%@", progress, self.name, self.document.identifier);
             progressBlock(progress);
         };
     }
@@ -46,12 +50,14 @@
      params:nil
      progressBlock:myProgressBlock
      finishedBlock:^(MKNetworkOperation* completedOperation) {
+         DDLogVerbose(@"[Attachment] Done loading attachment:%@ of document:%@", self.name, self.document.identifier);
          _data = completedOperation.responseData;
          if (finishedBlock) {
              finishedBlock(self);
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Attachment] Error:%@ loading attachment:%@ of document:%@", error.localizedDescription, self.name, self.document.identifier);
          if (errorBlock) {
              errorBlock(error);
          }
@@ -67,14 +73,19 @@
 }
 
 -(void)deleteWithFinishedBlock:(DeleteAttachmentFinishedBlock)finishedBlock errorBlock:(DeleteAttachmentErrorBlock)errorBlock {
+    DDLogVerbose(@"[Attachment] Deleting attachment:%@ of document:%@", self.name, self.document.identifier);
+    
     [self.document.database
      deletePath:[NSString stringWithFormat:@"%@/%@",self.document.identifier,self.name]
      params:@{@"rev":self.document.revision}
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          if (finishedBlock) {
+             DDLogVerbose(@"[Attachment] Done deleting attachment:%@ of document:%@ - reloading document", self.name, self.document.identifier);
              [self.document.database loadDocumentWithIdentifier:self.document.identifier finishedBlock:^(Document* document) {
+                 DDLogVerbose(@"[Attachment] Done reloading document after deleting attachment:%@ of document:%@", self.name, self.document.identifier);
                  finishedBlock(document);
              } errorBlock:^(NSError* error) {
+                 DDLogVerbose(@"[Attachment] Error:%@ reloading document after deleting attachment:%@ of document:%@", error.localizedDescription, self.name, self.document.identifier);
                  if (errorBlock) {
                      errorBlock(error);
                  }
@@ -85,6 +96,7 @@
          }
      }
      errorBlock:^(NSError* error) {
+         DDLogError(@"[Attachment] Error:%@ deleting attachment:%@ of document:%@", error.localizedDescription, self.name, self.document.identifier);
          if (errorBlock) {
              errorBlock(error);
          }
