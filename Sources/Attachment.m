@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "ObjC_CouchDB.h"
+#import "ObjC-CouchDB.h"
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -51,7 +51,16 @@ extern int ddLogLevel;
      progressBlock:myProgressBlock
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          DDLogVerbose(@"[Attachment] Done loading attachment:%@ of document:%@", self.name, self.document.identifier);
+         
          _data = completedOperation.responseData;
+         
+         if (self.contentType == nil) {
+             _contentType = completedOperation.readonlyResponse.MIMEType;
+         }
+         if (self.length == nil) {
+             _length = [NSNumber numberWithInteger:_data.length];
+         }
+         
          if (finishedBlock) {
              finishedBlock(self);
          }

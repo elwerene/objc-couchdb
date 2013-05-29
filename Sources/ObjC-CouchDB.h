@@ -1,12 +1,12 @@
 //
-//  objc_couchdb.h
+//  ObjC-CouchDB.h
 //  objc-couchdb
 //
 //  Created by René Rössler on 08.04.13.
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#ifndef OBJC_COUCHDB
+#ifndef ObjC_CouchDB
 
 #import <Foundation/Foundation.h>
 #import <MKNetworkKit/MKNetworkKit.h>
@@ -25,6 +25,6 @@
 #import "ViewResult.h"
 #import "ViewResultRow.h"
 
-#define OBJC_COUCHDB
+#define ObjC_CouchDB
 
 #endif

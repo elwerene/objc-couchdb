@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 FreshX GbR. All rights reserved.
 //
 
-#import "ObjC_CouchDB.h"
+#import "ObjC-CouchDB.h"
 
 @interface Filter : NSObject {
     @private
