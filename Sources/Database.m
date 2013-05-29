@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -243,7 +244,7 @@ extern int ddLogLevel;
          
          if (finishedBlock) {
              NSMutableDictionary* properties = [completedOperation.responseJSON mutableCopy];
-             [properties addEntriesFromDictionary:@{@"_id":[properties objectForKey:@"id"],@"_rev":[properties objectForKey:@"rev"]}];
+             [properties addEntriesFromDictionary:@{@"_id":[properties getStringWithPath:@"id"],@"_rev":[properties getStringWithPath:@"rev"]}];
              
              Document* document = [[Document alloc] initWithDatabase:self properties:properties];
              finishedBlock(document);

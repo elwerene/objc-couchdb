@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -59,7 +60,7 @@ extern int ddLogLevel;
      progressBlock:nil
      finishedBlock:^(MKNetworkOperation* completedOperation) {
          NSDictionary* response = [completedOperation responseJSON];
-         self.seq = [response objectForKey:@"update_seq"];
+         self.seq = [response getNumberWithPath:@"update_seq"];
          DDLogVerbose(@"[ChangesListener] Done loading current update_seq:%@. Starting listening for changes. Filter:%@", self.seq, self.filter);
          [self start];
      }
@@ -114,7 +115,7 @@ extern int ddLogLevel;
 }
 
 -(void)newChange:(NSDictionary*)changeDict {
-    self.seq = [changeDict objectForKey:@"seq"];
+    self.seq = [changeDict getNumberWithPath:@"seq"];
     Change* change = [[Change alloc] initWithData:changeDict];
     
     DDLogVerbose(@"[ChangesListener] New change:%@. Filter:%@", change, self.filter);

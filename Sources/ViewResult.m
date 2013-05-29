@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -16,10 +17,10 @@ extern int ddLogLevel;
     self = [super init];
     if (self) {
         _view = view;
-        _totalRows = [properties objectForKey:@"total_rows"];
-        _offset = [properties objectForKey:@"offset"];
+        _totalRows = [properties getNonEmptyNumberWithPath:@"total_rows"];
+        _offset = [properties getNonEmptyNumberWithPath:@"offset"];
         
-        NSArray* resultRows = [properties objectForKey:@"rows"];
+        NSArray* resultRows = [properties getNonEmptyArrayWithPath:@"rows"];
         NSMutableArray* rows = [NSMutableArray array];
         for (NSDictionary* resultRow in resultRows) {
             ViewResultRow* row = [[ViewResultRow alloc] initWithProperties:resultRow];

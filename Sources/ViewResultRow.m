@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -15,7 +16,7 @@ extern int ddLogLevel;
 -(id)initWithProperties:(NSDictionary*)properties {
     self = [super init];
     if (self) {
-        _identifier = [properties objectForKey:@"id"];
+        _identifier = [properties getStringWithPath:@"id"];
         _key = [properties objectForKey:@"key"];
         _value = [properties objectForKey:@"value"];
     }

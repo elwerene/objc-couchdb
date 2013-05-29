@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -18,11 +19,11 @@ extern int ddLogLevel;
         _document = document;
         _name = name;
         
-        _contentType = [properties objectForKey:@"content_type"];
-        _revision = [properties objectForKey:@"revpos"];
-        _digest = [properties objectForKey:@"digest"];
-        _length = [properties objectForKey:@"length"];
-        _stub = [[properties objectForKey:@"stub"] isEqualToNumber:@YES];
+        _contentType = [properties getStringWithPath:@"content_type"];
+        _revision = [properties getNumberWithPath:@"revpos"];
+        _digest = [properties getStringWithPath:@"digest"];
+        _length = [properties getNumberWithPath:@"length"];
+        _stub = [[properties getNonEmptyNumberWithPath:@"stub"] isEqualToNumber:@YES];
         if (_stub == YES) {
             _data = nil;
         } else {

@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -15,53 +16,37 @@ extern int ddLogLevel;
 -(id)initWithDatabase:(Database*)database properties:(NSDictionary*)properties {
     self = [super initWithDatabase:database properties:properties];
     if (self) {
-        NSDictionary* rawViews = [properties objectForKey:@"views"];
-        if (rawViews == nil || rawViews.count == 0) {
-            _views = @{};
-        } else {
-            NSMutableDictionary* views = [NSMutableDictionary dictionary];
-            for (NSString* name in rawViews.allKeys) {
-                View* view = [[View alloc] initWithDesign:self name:name];
-                [views setObject:view forKey:name];
-            }
-            _views = views;
+        NSDictionary* rawViews = [properties getNonEmptyDictionaryWithPath:@"views"];
+        NSMutableDictionary* views = [NSMutableDictionary dictionary];
+        for (NSString* name in rawViews.allKeys) {
+            View* view = [[View alloc] initWithDesign:self name:name];
+            [views setObject:view forKey:name];
         }
+        _views = views;
         
-        NSDictionary* rawFilters = [properties objectForKey:@"filters"];
-        if (rawFilters == nil || rawFilters.count == 0) {
-            _filters = @{};
-        } else {
-            NSMutableDictionary* filters = [NSMutableDictionary dictionary];
-            for (NSString* name in rawFilters.allKeys) {
-                Filter* filter = [[Filter alloc] initWithDesign:self name:name];
-                [filters setObject:filter forKey:name];
-            }
-            _filters = filters;
+        NSDictionary* rawFilters = [properties getNonEmptyDictionaryWithPath:@"filters"];
+        NSMutableDictionary* filters = [NSMutableDictionary dictionary];
+        for (NSString* name in rawFilters.allKeys) {
+            Filter* filter = [[Filter alloc] initWithDesign:self name:name];
+            [filters setObject:filter forKey:name];
         }
+        _filters = filters;
         
-        NSDictionary* rawLists = [properties objectForKey:@"lists"];
-        if (rawLists == nil || rawLists.count == 0) {
-            _lists = @{};
-        } else {
-            NSMutableDictionary* lists = [NSMutableDictionary dictionary];
-            for (NSString* name in rawLists.allKeys) {
-                List* list = [[List alloc] initWithDesign:self name:name];
-                [lists setObject:list forKey:name];
-            }
-            _lists = lists;
+        NSDictionary* rawLists = [properties getNonEmptyDictionaryWithPath:@"lists"];
+        NSMutableDictionary* lists = [NSMutableDictionary dictionary];
+        for (NSString* name in rawLists.allKeys) {
+            List* list = [[List alloc] initWithDesign:self name:name];
+            [lists setObject:list forKey:name];
         }
+        _lists = lists;
         
-        NSDictionary* rawUpdates = [properties objectForKey:@"updates"];
-        if (rawUpdates == nil || rawUpdates.count == 0) {
-            _updates = @{};
-        } else {
-            NSMutableDictionary* updates = [NSMutableDictionary dictionary];
-            for (NSString* name in rawUpdates.allKeys) {
-                Update* update = [[Update alloc] initWithDesign:self name:name];
-                [updates setObject:update forKey:name];
-            }
-            _updates = updates;
+        NSDictionary* rawUpdates = [properties getNonEmptyDictionaryWithPath:@"updates"];
+        NSMutableDictionary* updates = [NSMutableDictionary dictionary];
+        for (NSString* name in rawUpdates.allKeys) {
+            Update* update = [[Update alloc] initWithDesign:self name:name];
+            [updates setObject:update forKey:name];
         }
+        _updates = updates;
     }
     return self;
 }

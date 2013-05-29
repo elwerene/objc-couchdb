@@ -7,6 +7,7 @@
 //
 
 #import "ObjC-CouchDB.h"
+#import <PathHelper/PathHelper.h>
 #import <CocoaLumberjack/DDLog.h>
 extern int ddLogLevel;
 
@@ -15,10 +16,10 @@ extern int ddLogLevel;
 -(id)initWithData:(NSDictionary*)data {
     self = [super init];
     if (self) {
-        _seq = [data objectForKey:@"seq"];
-        _identifier = [data objectForKey:@"id"];
-        _changes = [data objectForKey:@"changes"];
-        _deleted = [[data objectForKey:@"deleted"] isEqualToNumber:@YES];
+        _seq = [data getNumberWithPath:@"seq"];
+        _identifier = [data getStringWithPath:@"id"];
+        _changes = [data getArrayWithPath:@"changes"];
+        _deleted = [[data getNumberWithPath:@"deleted"] isEqualToNumber:@YES];
     }
     return self;
 }
