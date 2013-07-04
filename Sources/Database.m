@@ -88,6 +88,7 @@ extern int ddLogLevel;
         if (finishedBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 finishedBlock(completedOperation);
+                [self.engine emptyCache];
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
@@ -123,6 +124,7 @@ extern int ddLogLevel;
         if (finishedBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 finishedBlock(completedOperation);
+                [self.engine emptyCache];
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
@@ -155,6 +157,7 @@ extern int ddLogLevel;
         if (finishedBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 finishedBlock(completedOperation);
+                [self.engine emptyCache];
             });
         }
     } errorHandler:^(MKNetworkOperation* completedOperation, NSError* error) {
